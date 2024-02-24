@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 # adjust as needed
 ITERATEMAX = 100
@@ -47,5 +49,13 @@ print('Final x1: ', x1)
 print('Final x2: ', x2)
 
 
-
+# Plot the graph
+plt.plot(range(ITERATEMAX), x1_values, label='x1')
+plt.plot(range(ITERATEMAX), x2_values, label='x2')
+plt.xlabel('Iterations')
+plt.ylabel('Values')
+plt.title('Values of x1 and x2 over iterations')
+plt.legend()
+plt.grid(True)
+plt.show()
 

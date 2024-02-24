@@ -1,7 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 
-def AIMD(a:int=1, b:float=0.5, cwnd:int=10, data_packet:tuple=(None, "Dropped"), RTT_tracker:list=[])->list:
+def AIMD(a:int=1, b:float=0.5, cwnd:int=0, RTT_tracker:list=[], max_window=10)->list:
     """This function mimics the Additive Increase and Multiplicative Decrease Mechanism in TCP Congestion Control.
  
     Parameters
@@ -34,20 +34,20 @@ def AIMD(a:int=1, b:float=0.5, cwnd:int=10, data_packet:tuple=(None, "Dropped"),
     if status == 'Transfer':
         cwnd += a
     else:
-        cwnd = math.floor(cwnd * b)
+        cwnd = cwnd * b
         
     RTT_tracker.append(cwnd)
     
     return cwnd
 
-def scalable_AIMD(a:int=1, b:float=0.5, cwnd:int=10, data_packet:tuple=(None, "Dropped"), RTT_trackerS:list=[])->list:
+def scalable_AIMD(a:int=1, b:float=0.125, cwnd:int=10, data_packet:tuple=(None, "Dropped"), RTT_trackerS:list=[])->list:
 
     _, status = data_packet
     
     if status == 'Transfer':
-        cwnd = cwnd + 0.1 * cwnd
+        cwnd = cwnd + (0.1 * cwnd)
     else:
-        cwnd = math.floor(cwnd * b)
+        cwnd = cwnd * b
         
     RTT_trackerS.append(cwnd)
     
@@ -55,20 +55,26 @@ def scalable_AIMD(a:int=1, b:float=0.5, cwnd:int=10, data_packet:tuple=(None, "D
 
 if __name__ == "__main__":
     # Set Up for Data
-    data_packets = [(x, "Transfer") if x % 5 != 0 else (x, "Dropped") for x in range(1, 51)]
+    data_packets = [(x, "Transfer") if x % 10 != 0 else (x, "Dropped") for x in range(1, 101)]
     
+    # for idx, cwnd in data_packets:
+    #     print(f"data_packet {idx}:\t", cwnd)
+
+    ITERATEMAX = 100
     # Parameters
-    cwnd = 10
+    max_cwnd = 10
+    cwnd = 0
     a = 1
     b = 0.5
     
     # Iterate
     RTT_tracker = []
-    for data_packet in data_packets:
-        cwnd = AIMD(a, b, cwnd, data_packet, RTT_tracker)
+    for i in range(ITERATEMAX):
+        cwnd = AIMD(a, b, cwnd, RTT_tracker, max_cwnd)
 
     cwnd = 10
-    
+    b = 0.125
+    # scalable AIMD
     RTT_trackerS = []
     for data_packet in data_packets:
         cwnd = scalable_AIMD(a, b, cwnd, data_packet, RTT_trackerS)
@@ -83,7 +89,7 @@ if __name__ == "__main__":
     plt.plot(x, y)
     plt.xlabel("RTT")
     plt.ylabel("CWND")
-    plt.title(f"RTT vs CWND with a={a} and b={b}")
+    plt.title(f"Standard AIMD")
     plt.show()
 
     # Visualise for Scalable
